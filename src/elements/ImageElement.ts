@@ -15,9 +15,9 @@ export class ImageElement implements BaseElement {
     this.prepare();
   }
 
-  private prepare() {
+  private async prepare() {
     const { url } = this.options;
-    loadImage(url).then((img) => (this.image = img));
+    this.image = await loadImage(url);
   }
 
   public draw(context: CanvasRenderingContext2D) {

@@ -3,7 +3,7 @@ import Core from "./core";
 import { BaseElement } from "./elements/BaseElement";
 
 export default class Renderer {
-  public canvas: Canvas;
+  private canvas: Canvas;
   private context: CanvasRenderingContext2D;
   private elements: BaseElement[] = [];
 
@@ -34,7 +34,7 @@ export default class Renderer {
 
     this.elements.forEach((element) => element.draw(this.context));
 
-    this.core.streamer.putFrame();
+    this.core.streamer.putFrame(this.canvas.toBuffer("raw"));
   }
 
   addElement(element: BaseElement) {

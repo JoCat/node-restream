@@ -1,5 +1,6 @@
 import { spawn, ChildProcess } from "child_process";
 import pathToFfmpeg from "ffmpeg-static";
+import { config } from "./config";
 import Core from "./core";
 
 export default class Streamer {
@@ -7,13 +8,12 @@ export default class Streamer {
 
   private size: [number, number];
 
-  constructor(private core: Core) {
+  constructor(core: Core) {
     this.size = core.options.size;
   }
 
   run() {
-    // Если там, куда хотите транслировать есть ссылка и ключ, то вводим в формате 'url/key'
-    const rtmpUrl = "rtmp://a.rtmp.youtube.com/live2/jwtx-yry9-hhcc-50dt-4t81";
+    const rtmpUrl = config.streamUrl || "";
     const audioUrl = "https://radiorecord.hostingradio.ru/dub96.aacp";
 
     this.ffmpeg = spawn(pathToFfmpeg!, this.ffmpegFlags(audioUrl, rtmpUrl), {
@@ -59,7 +59,7 @@ export default class Streamer {
     ].flat();
   }
 
-  async putFrame() {
-    this.ffmpeg.stdin.write(this.core.renderer.canvas.toBuffer("raw"));
+  putFrame(frame: Buffer) {
+    this.ffmpeg.stdin.write(frame);
   }
 }
