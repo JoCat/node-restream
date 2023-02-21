@@ -2,7 +2,7 @@ import { CanvasRenderingContext2D, Image, loadImage } from "canvas";
 import { BaseElement, BaseElementOptions } from "./BaseElement";
 
 export interface ImageElementOptions extends BaseElementOptions {
-  url: string;
+  src: string | Buffer;
 }
 
 export class ImageElement implements BaseElement {
@@ -16,8 +16,8 @@ export class ImageElement implements BaseElement {
   }
 
   private async prepare() {
-    const { url } = this.options;
-    this.image = await loadImage(url);
+    const { src } = this.options;
+    this.image = await loadImage(src);
   }
 
   public draw(context: CanvasRenderingContext2D) {
