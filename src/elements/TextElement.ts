@@ -1,8 +1,9 @@
 import { CanvasRenderingContext2D } from "canvas";
+import { Ref } from "../ref";
 import { BaseElement } from "./BaseElement";
 
 export interface TextElementOptions {
-  text: string | (() => string);
+  text: string | (() => string) | Ref<string>;
   font?: string;
   fontSize?: number;
   /**
@@ -31,7 +32,8 @@ export class TextElement implements BaseElement {
     context.font = [fontSize || 18, font || "sans-serif"].join("px ");
 
     let textResult;
-    if (typeof text === "function") textResult = text();
+    if (text instanceof Ref) textResult = text.getRef();
+    else if (typeof text === "function") textResult = text();
     else textResult = text;
 
     const [x, y] = position;
