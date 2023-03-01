@@ -3,7 +3,7 @@ import pathToFfmpeg from "ffmpeg-static";
 import Core from "./core";
 
 export default class Streamer {
-  private ffmpeg!: ChildProcess;
+  private ffmpeg: ChildProcess[] = [];
 
   private fps: number;
   private size: [number, number];
@@ -18,21 +18,23 @@ export default class Streamer {
   }
 
   run() {
-    this.ffmpeg = spawn(pathToFfmpeg!, this.ffmpegFlags(), {
-      stdio: ["pipe", process.stdout, process.stderr],
-    });
+    this.outputs.forEach((output, index) => {
+      const instance = spawn(pathToFfmpeg!, this.ffmpegFlags(output), {
+        stdio: "pipe",
+      });
 
-    this.ffmpeg.on("close", (code) => {
-      console.log("[FFMPEG] Closed.", code);
-      process.exit();
+      instance.stderr.on("data", (message) => {
+        console.log(`[source #${index}] ${message}`);
+      });
+
+      this.ffmpeg.push(instance);
+
+      console.log(`Source #${index} is up and running`);
     });
-    this.ffmpeg.on("error", (error) => {
-      console.log(`[FFMPEG] Error: ${error}`);
-      process.exit();
-    });
+    console.log("All sources are running");
   }
 
-  ffmpegFlags() {
+  ffmpegFlags(output: string) {
     const flags: (string | string[])[] = [
       // Video pipe input
       ["-f", "rawvideo"],
@@ -54,19 +56,16 @@ export default class Streamer {
       ["-preset", "veryfast"],
       ["-g:v", `${this.fps}`],
       ["-b:v", "2500k"],
-      ["-b:a", "96k"]
+      ["-b:a", "96k"],
+      ["-f", "flv", output],
+      ["-loglevel", "error"]
+      // ["-loglevel", "level+info"]
     );
-
-    flags.push(...this.getOutputs());
 
     return flags.flat();
   }
 
-  getOutputs() {
-    return this.outputs.map((output) => ["-f", "flv", output]);
-  }
-
   putFrame(frame: Buffer) {
-    this.ffmpeg.stdin.write(frame);
+    this.ffmpeg.forEach((stream) => stream.stdin.write(frame));
   }
 }
