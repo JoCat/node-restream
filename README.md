@@ -12,9 +12,6 @@ const app = new App({
   audioUrl: "http://localhost:8000/live",
 });
 
-// or
-// app.setAudioUrl("http://83.136.232.247:8903/live");
-
 app.addImageElement({
   position: [0, 0],
   src: resolve("./assets/background.jpg"),

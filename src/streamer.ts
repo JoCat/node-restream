@@ -2,8 +2,14 @@ import { spawn, ChildProcess } from "child_process";
 import pathToFfmpeg from "ffmpeg-static";
 import Core from "./core";
 
+interface Stream {
+  instance: ChildProcess;
+  output: string;
+  index: number;
+}
+
 export default class Streamer {
-  private ffmpeg: ChildProcess[] = [];
+  private instances: Stream[] = [];
 
   private fps: number;
   private size: [number, number];
@@ -19,19 +25,36 @@ export default class Streamer {
 
   run() {
     this.outputs.forEach((output, index) => {
-      const instance = spawn(pathToFfmpeg!, this.ffmpegFlags(output), {
-        stdio: "pipe",
-      });
-
-      instance.stderr.on("data", (message) => {
-        console.log(`[source #${index}] ${message}`);
-      });
-
-      this.ffmpeg.push(instance);
-
+      this.startStream(output, index);
       console.log(`Source #${index} is up and running`);
     });
     console.log("All sources are running");
+  }
+
+  startStream(output: string, index: number) {
+    const instance = spawn(pathToFfmpeg!, this.ffmpegFlags(output));
+
+    const stream = {
+      instance,
+      output,
+      index,
+    };
+
+    instance.stderr.on("data", (message) => {
+      console.log(`[source #${index}] ${message}`);
+    });
+
+    instance.stdin.on("error", (message) => {
+      console.error(`[source #${index}] stdin error`, message);
+    });
+
+    instance.on("close", () => {
+      this.instances.splice(this.instances.indexOf(stream));
+      this.startStream(output, index);
+      console.log(`Source #${index} restarted`);
+    });
+
+    this.instances.push(stream);
   }
 
   ffmpegFlags(output: string) {
@@ -66,6 +89,6 @@ export default class Streamer {
   }
 
   putFrame(frame: Buffer) {
-    this.ffmpeg.forEach((stream) => stream.stdin.write(frame));
+    this.instances.forEach((stream) => stream.instance.stdin.write(frame));
   }
 }
