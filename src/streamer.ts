@@ -31,7 +31,6 @@ export default class Streamer {
 
     process.once("SIGINT", () => this.killAllStreams());
     process.once("SIGTERM", () => this.killAllStreams());
-    process.once("SIGKILL", () => this.killAllStreams());
 
     console.log("All sources are running");
   }
