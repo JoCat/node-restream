@@ -28,7 +28,16 @@ export default class Streamer {
       this.startStream(output, index);
       console.log(`Source #${index} is up and running`);
     });
+
+    process.once("SIGINT", () => this.killAllStreams());
+    process.once("SIGTERM", () => this.killAllStreams());
+    process.once("SIGKILL", () => this.killAllStreams());
+
     console.log("All sources are running");
+  }
+
+  killAllStreams() {
+    this.instances.forEach(({ instance }) => instance.kill());
   }
 
   startStream(output: string, index: number) {

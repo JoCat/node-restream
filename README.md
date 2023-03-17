@@ -1,8 +1,16 @@
 # nodestream
 
-```js
-// Example
+## Install
 
+Create a new project and install the "nodestream" dependency:
+
+`npm i nodestream`
+
+Or clone this repository if you want to edit the source code
+
+## Usage
+
+```js
 import App from "nodestream";
 import { resolve } from "path";
 
