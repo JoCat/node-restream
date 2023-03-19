@@ -97,6 +97,12 @@ export default class Streamer {
   }
 
   putFrame(frame: Buffer) {
-    this.instances.forEach((stream) => stream.instance.stdin.write(frame));
+    this.instances.forEach((stream) => {
+      try {
+        stream.instance.stdin.write(frame);
+      } catch (error) {
+        // ignore
+      }
+    });
   }
 }
