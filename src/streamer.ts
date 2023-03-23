@@ -68,10 +68,7 @@ export default class Streamer {
   ffmpegFlags(output: string) {
     const flags: (string | string[])[] = [
       // Video pipe input
-      ["-f", "rawvideo"],
-      ["-pixel_format", "bgra"],
-      ["-video_size", this.size.join("x")],
-      ["-framerate", `${this.fps}`],
+      ["-r", `${this.fps}`],
       ["-i", "-"],
     ];
 
@@ -81,13 +78,13 @@ export default class Streamer {
 
     flags.push(
       // Output conf
-      ["-vcodec", "libx264"],
-      ["-acodec", "aac"],
+      ["-c:v", "libx264"],
+      ["-preset", "ultrafast"],
       ["-pix_fmt", "yuv420p"],
-      ["-preset", "veryfast"],
-      ["-g:v", `${this.fps}`],
-      ["-b:v", "2500k"],
-      ["-b:a", "96k"],
+      ["-g", `${this.fps * 2}`],
+      ["-c:a", "aac"],
+      ["-b:a", "128k"],
+      ["-movflags", "+faststart"],
       ["-f", "flv", output],
       ["-loglevel", "error"]
       // ["-loglevel", "level+info"]
@@ -99,7 +96,7 @@ export default class Streamer {
   putFrame(frame: Buffer) {
     this.instances.forEach((stream) => {
       try {
-        stream.instance.stdin.write(frame);
+        stream.instance.stdin?.write(frame);
       } catch (error) {
         // ignore
       }

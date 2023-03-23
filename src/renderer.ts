@@ -34,7 +34,7 @@ export default class Renderer {
 
     this.elements.forEach((element) => element.draw(this.context));
 
-    this.core.streamer.putFrame(this.canvas.toBuffer("raw"));
+    this.core.streamer.putFrame(this.canvas.toBuffer("image/jpeg"));
   }
 
   addElement(element: BaseElement) {

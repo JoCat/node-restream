@@ -9,7 +9,7 @@ export interface TextElementOptions {
   /**
    * rgb(a)
    */
-  color: [number, number, number] | [number, number, number, number];
+  color?: [number, number, number] | [number, number, number, number];
   /**
    * x, y
    */
@@ -26,7 +26,7 @@ export class TextElement implements BaseElement {
   public draw(context: CanvasRenderingContext2D) {
     const { text, font, fontSize, color, position } = this.options;
 
-    const [r, g, b, a = 1] = color;
+    const [r = 0, g = 0, b = 0, a = 1] = color || [];
     context.fillStyle = `rgba(${[r, g, b, a].join(",")})`;
 
     context.font = [fontSize || 18, font || "sans-serif"].join("px ");
