@@ -5,7 +5,7 @@
   "main": "test/example.ts",
   "scripts": {
     "run": "ts-node .",
-    "pm2": "pm2 start \"npm run run\" --name video --max-memory-restart 500MB"
+    "pm2": "pm2 start \"npm run run\" --name video --max-memory-restart 500M"
   },
   "engines": {
     "node": ">=18"
