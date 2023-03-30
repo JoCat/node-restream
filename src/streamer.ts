@@ -1,6 +1,9 @@
-import { spawn, ChildProcess } from "child_process";
+import { ChildProcess, spawn } from "child_process";
+
 import pathToFfmpeg from "ffmpeg-static";
-import Core, { Output } from "./core";
+
+import Core from "./core";
+import type { Output } from "./core";
 
 interface Stream {
   instance: ChildProcess;
