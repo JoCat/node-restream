@@ -1,11 +1,11 @@
 {
-  "name": "nodestream",
+  "name": "node-restream",
   "version": "0.0.4",
   "description": "",
   "main": "test/example.ts",
   "scripts": {
-    "run": "ts-node .",
-    "pm2": "pm2 start \"npm run run\" --name video --max-memory-restart 500M"
+    "start": "ts-node .",
+    "pm2": "pm2 start \"npm start\" --name video"
   },
   "engines": {
     "node": ">=18"

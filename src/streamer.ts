@@ -1,30 +1,20 @@
 import { spawn, ChildProcess } from "child_process";
 import pathToFfmpeg from "ffmpeg-static";
-import Core from "./core";
+import Core, { Output } from "./core";
 
 interface Stream {
   instance: ChildProcess;
-  output: string;
+  output: Output;
   index: number;
 }
 
 export default class Streamer {
   private instances: Stream[] = [];
 
-  private fps: number;
-  private size: [number, number];
-  private audioUrl: string;
-  private outputs: string[];
-
-  constructor(core: Core) {
-    this.fps = core.options.fps;
-    this.size = core.options.size;
-    this.audioUrl = core.options.audioUrl;
-    this.outputs = core.outputs;
-  }
+  constructor(private core: Core) {}
 
   run() {
-    this.outputs.forEach((output, index) => {
+    this.core.outputs.forEach((output, index) => {
       this.startStream(output, index);
       console.log(`Source #${index} is up and running`);
     });
@@ -39,8 +29,12 @@ export default class Streamer {
     this.instances.forEach(({ instance }) => instance.kill());
   }
 
-  startStream(output: string, index: number) {
-    const instance = spawn(pathToFfmpeg!, this.ffmpegFlags(output));
+  startStream(output: Output, index: number) {
+    if (!pathToFfmpeg) {
+      throw new Error("ffmpeg not found");
+    }
+
+    const instance = spawn(pathToFfmpeg, this.ffmpegFlags(output));
 
     const stream = {
       instance,
@@ -65,41 +59,19 @@ export default class Streamer {
     this.instances.push(stream);
   }
 
-  ffmpegFlags(output: string) {
-    const flags: (string | string[])[] = [
-      // Video pipe input
-      ["-r", `${this.fps}`],
-      ["-i", "-"],
-    ];
+  ffmpegFlags(output: Output) {
+    const flags = ["-i", this.core.options.inputUrl];
 
-    if (this.audioUrl.length > 0) {
-      flags.push(["-i", this.audioUrl]);
+    flags.push("-c", "copy");
+
+    if (output.flags) flags.push(...output.flags);
+
+    flags.push("-f", "flv", output.url);
+
+    if (this.core.options.silentLogging) {
+      flags.push("-loglevel", "error");
     }
 
-    flags.push(
-      // Output conf
-      ["-c:v", "libx264"],
-      ["-preset", "ultrafast"],
-      ["-pix_fmt", "yuv420p"],
-      ["-g", `${this.fps * 2}`],
-      ["-c:a", "aac"],
-      ["-b:a", "128k"],
-      ["-movflags", "+faststart"],
-      ["-f", "flv", output],
-      ["-loglevel", "error"]
-      // ["-loglevel", "level+info"]
-    );
-
-    return flags.flat();
-  }
-
-  putFrame(frame: Buffer) {
-    this.instances.forEach((stream) => {
-      try {
-        stream.instance.stdin?.write(frame);
-      } catch (error) {
-        // ignore
-      }
-    });
+    return flags;
   }
 }
