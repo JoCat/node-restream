@@ -1,43 +1,27 @@
-# nodestream
+# node-restream
 
 ## Install
 
-Create a new project and install the "nodestream" dependency:
+Create a new project and install the "node-restream" dependency:
 
-`npm i nodestream`
+`npm i node-restream`
 
 Or clone this repository if you want to edit the source code
 
 ## Usage
 
 ```js
-import App from "nodestream";
+import App from "node-restream";
 import { resolve } from "path";
 
 const app = new App({
-  size: [1280, 720],
-  fps: 30,
-  audioUrl: "http://localhost:8000/live",
+  inputUrl: "rtmp://localhost:1935/live",
 });
 
-app.addImageElement({
-  position: [0, 0],
-  src: resolve("./assets/background.jpg"),
+// DEV
+app.addOutput({
+  url: "rtmp://localhost:1935/stream/hello",
 });
-
-app.addImageElement({
-  position: [1080, 25],
-  src: resolve("./assets/stream-logo.png"),
-});
-
-app.addTextElement({
-  text: () => new Date().toLocaleTimeString(),
-  color: [0, 0, 0],
-  position: [20, 20],
-  fontSize: 32,
-});
-
-app.addOutput("rtmp://localhost:1935/stream/hello");
 
 app.run();
 ```
