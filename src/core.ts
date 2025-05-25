@@ -28,7 +28,7 @@ export default class Core {
 
   run() {
     if (!this.options.inputUrl) {
-      throw new Error("");
+      throw new Error("Input URL is not set");
     }
 
     this.streamer.run();
